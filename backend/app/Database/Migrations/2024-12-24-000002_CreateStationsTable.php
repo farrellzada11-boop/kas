@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Database\Migrations;
+
+use CodeIgniter\Database\Migration;
+
+class CreateStationsTable extends Migration
+{
+    public function up()
+    {
+        $this->forge->addField([
+            'id' => [
+                'type' => 'INT',
+                'constraint' => 11,
+                'unsigned' => true,
+                'auto_increment' => true,
+            ],
+            'name' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+            ],
+            'code' => [
+                'type' => 'VARCHAR',
+                'constraint' => 10,
+            ],
+            'city' => [
+                'type' => 'VARCHAR',
+                'constraint' => 100,
+            ],
+            'address' => [
+                'type' => 'TEXT',
+                'null' => true,
+            ],
+            'created_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+            'updated_at' => [
+                'type' => 'DATETIME',
+                'null' => true,
+            ],
+        ]);
+        $this->forge->addKey('id', true);
+        $this->forge->addUniqueKey('code');
+        $this->forge->createTable('stations');
+    }
+
+    public function down()
+    {
+        $this->forge->dropTable('stations');
+    }
+}
