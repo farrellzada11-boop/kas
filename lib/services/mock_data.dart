@@ -9,7 +9,7 @@ class MockData {
   static final List<User> users = [
     User(
       id: '1',
-      name: 'John Doe',
+      name: 'Farrel Zada',
       email: 'user@mail.com',
       phone: '081234567890',
       role: UserRole.user,
@@ -193,7 +193,7 @@ class MockData {
         user: users[0],
         schedule: schedules[0],
         passengers: [
-          Passenger(name: 'John Doe', idNumber: '3201234567890001', seatNumber: 'A1'),
+          Passenger(name: 'Farrel Zada', idNumber: '3201234567890001', seatNumber: 'A1'),
         ],
         totalPrice: 150000,
         status: BookingStatus.confirmed,
@@ -206,8 +206,8 @@ class MockData {
         user: users[0],
         schedule: schedules[2],
         passengers: [
-          Passenger(name: 'John Doe', idNumber: '3201234567890001', seatNumber: 'B5'),
-          Passenger(name: 'Jane Doe', idNumber: '3201234567890002', seatNumber: 'B6'),
+          Passenger(name: 'Farrel Zada', idNumber: '3201234567890001', seatNumber: 'B5'),
+          Passenger(name: 'Aisyah', idNumber: '3201234567890002', seatNumber: 'B6'),
         ],
         totalPrice: 700000,
         status: BookingStatus.pending,
@@ -219,7 +219,7 @@ class MockData {
         user: users[0],
         schedule: schedules[4],
         passengers: [
-          Passenger(name: 'John Doe', idNumber: '3201234567890001', seatNumber: 'C10'),
+          Passenger(name: 'Farrel Zada', idNumber: '3201234567890001', seatNumber: 'C10'),
         ],
         totalPrice: 450000,
         status: BookingStatus.completed,

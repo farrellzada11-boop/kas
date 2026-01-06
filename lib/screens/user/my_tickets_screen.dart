@@ -36,7 +36,10 @@ class _MyTicketsScreenState extends State<MyTicketsScreen>
       appBar: AppBar(
         title: const Text('Tiket Saya'),
         centerTitle: true,
-        automaticallyImplyLeading: false,
+        leading: Navigator.canPop(context) ? IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ) : null,
         flexibleSpace: Container(
           decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
         ),
@@ -62,6 +65,7 @@ class _MyTicketsScreenState extends State<MyTicketsScreen>
           final activeBookings = bookings
               .where((b) =>
                   b.status == BookingStatus.pending ||
+                  b.status == BookingStatus.waitingConfirmation ||
                   b.status == BookingStatus.confirmed)
               .toList();
           final completedBookings = bookings
@@ -170,8 +174,16 @@ class _MyTicketsScreenState extends State<MyTicketsScreen>
                         child: ElevatedButton(
                           onPressed: () async {
                             await Provider.of<BookingService>(context, listen: false)
-                                .confirmBooking(booking.id);
-                            if (context.mounted) Navigator.pop(context);
+                                .payBooking(booking.id);
+                            if (context.mounted) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Pembayaran berhasil! Menunggu konfirmasi admin.'),
+                                  backgroundColor: AppColors.success,
+                                ),
+                              );
+                            }
                           },
                           child: const Text('Bayar Sekarang'),
                         ),
@@ -186,6 +198,31 @@ class _MyTicketsScreenState extends State<MyTicketsScreen>
                             if (context.mounted) Navigator.pop(context);
                           },
                           child: const Text('Batalkan'),
+                        ),
+                      ),
+                    ],
+                    if (booking.status == BookingStatus.waitingConfirmation) ...[
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Column(
+                          children: [
+                            Icon(Icons.hourglass_empty, color: AppColors.warning, size: 32),
+                            SizedBox(height: 8),
+                            Text(
+                              'Menunggu Konfirmasi Admin',
+                              style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.warning),
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Pembayaran Anda sedang diverifikasi',
+                              style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            ),
+                          ],
                         ),
                       ),
                     ],

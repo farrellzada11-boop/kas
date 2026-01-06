@@ -18,6 +18,9 @@ class BookingService extends ChangeNotifier {
   List<Booking> get userBookings => _userBookings;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  
+  // Keep track of newly created bookings in this session
+  static final List<Booking> _sessionBookings = [];
 
   Future<void> loadAllBookings() async {
     _isLoading = true;
@@ -26,7 +29,23 @@ class BookingService extends ChangeNotifier {
     try {
       if (AppConstants.useMockData) {
         await Future.delayed(const Duration(milliseconds: 500));
-        _bookings = MockData.bookings;
+        // Combine mock data with session bookings
+        final mockBookings = MockData.bookings;
+        final allBookings = <Booking>[];
+        
+        // Add mock bookings
+        for (final booking in mockBookings) {
+          allBookings.add(booking);
+        }
+        
+        // Add session bookings (new bookings created in this session)
+        for (final booking in _sessionBookings) {
+          if (!allBookings.any((b) => b.id == booking.id)) {
+            allBookings.add(booking);
+          }
+        }
+        
+        _bookings = allBookings;
       } else {
         final response = await _apiService.get('${AppConstants.bookingsEndpoint}/all');
         _bookings = (response['data'] as List).map((e) => Booking.fromJson(e)).toList();
@@ -86,6 +105,7 @@ class BookingService extends ChangeNotifier {
 
         _userBookings.add(booking);
         _bookings.add(booking);
+        _sessionBookings.add(booking); // Add to session bookings for persistence
         
         _isLoading = false;
         notifyListeners();
@@ -95,7 +115,7 @@ class BookingService extends ChangeNotifier {
           AppConstants.bookingsEndpoint,
           {
             'schedule_id': schedule.id,
-            'passengers': passengers.map((p) => {
+            'passengers': passengers.map((p) => <String, dynamic>{
               'name': p.name,
               'id_number': p.idNumber,
               'seat_number': p.seatNumber,
@@ -122,6 +142,26 @@ class BookingService extends ChangeNotifier {
     return 'KAS-${now.year}-${now.millisecondsSinceEpoch.toString().substring(7)}';
   }
 
+  // User pays - changes status to waitingConfirmation
+  Future<bool> payBooking(String bookingId) async {
+    try {
+      if (AppConstants.useMockData) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        _updateBookingStatus(bookingId, BookingStatus.waitingConfirmation);
+      } else {
+        await _apiService.put('${AppConstants.bookingsEndpoint}/$bookingId/pay', {});
+        await loadAllBookings();
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Gagal memproses pembayaran: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Admin confirms payment - changes status to confirmed
   Future<bool> confirmBooking(String bookingId) async {
     try {
       if (AppConstants.useMockData) {
@@ -135,6 +175,25 @@ class BookingService extends ChangeNotifier {
       return true;
     } catch (e) {
       _error = 'Gagal konfirmasi booking: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Admin completes booking after trip is done
+  Future<bool> completeBooking(String bookingId) async {
+    try {
+      if (AppConstants.useMockData) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        _updateBookingStatus(bookingId, BookingStatus.completed);
+      } else {
+        await _apiService.put('${AppConstants.bookingsEndpoint}/$bookingId/complete', {});
+        await loadAllBookings();
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Gagal menyelesaikan booking: $e';
       notifyListeners();
       return false;
     }

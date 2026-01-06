@@ -51,7 +51,15 @@ class _BookingScreenState extends State<BookingScreen> {
     final authService = Provider.of<AuthService>(context, listen: false);
     final bookingService = Provider.of<BookingService>(context, listen: false);
 
-    if (authService.currentUser == null) return;
+    if (authService.currentUser == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Silakan login terlebih dahulu'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
 
     final passengers = _passengerForms.map((form) {
       return Passenger(
@@ -61,16 +69,33 @@ class _BookingScreenState extends State<BookingScreen> {
       );
     }).toList();
 
-    final booking = await bookingService.createBooking(
-      user: authService.currentUser!,
-      schedule: widget.schedule,
-      passengers: passengers,
-    );
+    try {
+      final booking = await bookingService.createBooking(
+        user: authService.currentUser!,
+        schedule: widget.schedule,
+        passengers: passengers,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (booking != null) {
-      _showSuccessDialog(booking);
+      if (booking != null) {
+        _showSuccessDialog(booking);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(bookingService.error ?? 'Gagal membuat booking'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -107,6 +132,10 @@ class _BookingScreenState extends State<BookingScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Pemesanan Tiket'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
         flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppColors.primaryGradient)),
       ),
       body: Form(

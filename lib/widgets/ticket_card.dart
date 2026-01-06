@@ -308,6 +308,10 @@ class TicketCard extends StatelessWidget {
         bgColor = AppColors.warning.withOpacity(0.2);
         textColor = Colors.orange.shade800;
         break;
+      case BookingStatus.waitingConfirmation:
+        bgColor = AppColors.info.withOpacity(0.2);
+        textColor = Colors.purple.shade800;
+        break;
       case BookingStatus.confirmed:
         bgColor = AppColors.success.withOpacity(0.2);
         textColor = Colors.green.shade800;

@@ -28,6 +28,9 @@ class AppColors {
   static const Color error = Color(0xFFEF4444);
   static const Color info = Color(0xFF3B82F6);
   
+  // Divider
+  static const Color divider = Color(0xFFE5E7EB);
+  
   // Gradient Colors
   static const LinearGradient primaryGradient = LinearGradient(
     begin: Alignment.topLeft,

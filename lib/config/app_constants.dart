@@ -4,8 +4,9 @@ class AppConstants {
   static const String appVersion = '1.0.0';
   
   // Toggle between Mock Data and API
-  // Set to false when CI4 backend is running
-  static const bool useMockData = false;
+  // Set to false when CI4 backend is running and using native app
+  // For Flutter Web, use true due to CORS restrictions
+  static const bool useMockData = true;
   
   // API Configuration
   static const String baseUrl = 'http://localhost:8080/api';

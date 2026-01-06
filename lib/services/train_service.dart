@@ -192,6 +192,43 @@ class TrainService extends ChangeNotifier {
     }
   }
 
+  Future<bool> updateSchedule(Schedule schedule) async {
+    try {
+      if (AppConstants.useMockData) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        final index = _schedules.indexWhere((s) => s.id == schedule.id);
+        if (index != -1) _schedules[index] = schedule;
+      } else {
+        await _apiService.put('${AppConstants.schedulesEndpoint}/${schedule.id}', schedule.toJson());
+        await loadData();
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Gagal mengupdate jadwal: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteSchedule(String scheduleId) async {
+    try {
+      if (AppConstants.useMockData) {
+        await Future.delayed(const Duration(milliseconds: 300));
+        _schedules.removeWhere((s) => s.id == scheduleId);
+      } else {
+        await _apiService.delete('${AppConstants.schedulesEndpoint}/$scheduleId');
+        await loadData();
+      }
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Gagal menghapus jadwal: $e';
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearError() {
     _error = null;
     notifyListeners();

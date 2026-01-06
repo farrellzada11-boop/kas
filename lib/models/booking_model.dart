@@ -1,7 +1,7 @@
 import 'schedule_model.dart';
 import 'user_model.dart';
 
-enum BookingStatus { pending, confirmed, completed, cancelled }
+enum BookingStatus { pending, waitingConfirmation, confirmed, completed, cancelled }
 
 class Passenger {
   final String name;
@@ -143,6 +143,8 @@ class Booking {
 
   static BookingStatus _parseStatus(String? status) {
     switch (status) {
+      case 'waiting_confirmation':
+        return BookingStatus.waitingConfirmation;
       case 'confirmed':
         return BookingStatus.confirmed;
       case 'completed':
@@ -181,6 +183,8 @@ class Booking {
     switch (status) {
       case BookingStatus.pending:
         return 'Menunggu Pembayaran';
+      case BookingStatus.waitingConfirmation:
+        return 'Menunggu Konfirmasi Admin';
       case BookingStatus.confirmed:
         return 'Dikonfirmasi';
       case BookingStatus.completed:

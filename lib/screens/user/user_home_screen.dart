@@ -296,7 +296,10 @@ class _HomeTab extends StatelessWidget {
             label: 'Tiket Saya',
             color: AppColors.accent,
             onTap: () {
-              // Navigate to tickets tab
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MyTicketsScreen()),
+              );
             },
           ),
         ),
@@ -307,7 +310,10 @@ class _HomeTab extends StatelessWidget {
             label: 'Riwayat',
             color: AppColors.success,
             onTap: () {
-              // Navigate to history
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const MyTicketsScreen()),
+              );
             },
           ),
         ),
@@ -459,7 +465,12 @@ class _ProfileTab extends StatelessWidget {
                 _ProfileMenuItem(
                   icon: Icons.history,
                   title: 'Riwayat Perjalanan',
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MyTicketsScreen()),
+                    );
+                  },
                 ),
                 _ProfileMenuItem(
                   icon: Icons.notifications_outlined,

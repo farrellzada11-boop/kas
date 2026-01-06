@@ -73,4 +73,16 @@ class Train {
     'Power Outlet': '🔌',
     'Reclining Seat': '💺',
   };
+
+  @override
+  String toString() => displayName;
+  
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Train && other.id == id;
+  }
+  
+  @override
+  int get hashCode => id.hashCode;
 }

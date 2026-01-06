@@ -5,14 +5,47 @@ import '../../models/booking_model.dart';
 import '../../services/booking_service.dart';
 import '../../widgets/loading_widget.dart';
 
-class BookingManagementScreen extends StatelessWidget {
+class BookingManagementScreen extends StatefulWidget {
   const BookingManagementScreen({super.key});
+
+  @override
+  State<BookingManagementScreen> createState() => _BookingManagementScreenState();
+}
+
+class _BookingManagementScreenState extends State<BookingManagementScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Load all bookings when screen opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<BookingService>(context, listen: false).loadAllBookings();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kelola Booking'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: () {
+              Provider.of<BookingService>(context, listen: false).loadAllBookings();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Memuat ulang data booking...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
+        ],
         flexibleSpace: Container(decoration: const BoxDecoration(gradient: AppColors.primaryGradient)),
       ),
       body: Consumer<BookingService>(
@@ -22,13 +55,28 @@ class BookingManagementScreen extends StatelessWidget {
           }
 
           if (bookingService.bookings.isEmpty) {
-            return const EmptyState(icon: Icons.book_online, title: 'Belum ada booking');
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const EmptyState(icon: Icons.book_online, title: 'Belum ada booking'),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () => bookingService.loadAllBookings(),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Refresh'),
+                  ),
+                ],
+              ),
+            );
           }
 
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: bookingService.bookings.length,
-            itemBuilder: (context, index) {
+          return RefreshIndicator(
+            onRefresh: () => bookingService.loadAllBookings(),
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: bookingService.bookings.length,
+              itemBuilder: (context, index) {
               final booking = bookingService.bookings[index];
               return Container(
                 margin: const EdgeInsets.only(bottom: 12),
@@ -61,6 +109,17 @@ class BookingManagementScreen extends StatelessWidget {
                     ),
                     if (booking.status == BookingStatus.pending) ...[
                       const SizedBox(height: 12),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.warning.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text('User belum membayar', style: TextStyle(color: AppColors.warning, fontSize: 12)),
+                      ),
+                    ],
+                    if (booking.status == BookingStatus.waitingConfirmation) ...[
+                      const SizedBox(height: 12),
                       Row(
                         children: [
                           Expanded(
@@ -79,10 +138,22 @@ class BookingManagementScreen extends StatelessWidget {
                         ],
                       ),
                     ],
+                    if (booking.status == BookingStatus.confirmed) ...[
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => bookingService.completeBooking(booking.id),
+                          style: ElevatedButton.styleFrom(backgroundColor: AppColors.success),
+                          child: const Text('Selesai'),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               );
             },
+          ),
           );
         },
       ),
@@ -98,22 +169,27 @@ class BookingManagementScreen extends StatelessWidget {
       case BookingStatus.pending:
         bgColor = AppColors.warning.withOpacity(0.2);
         textColor = Colors.orange.shade800;
-        text = 'Pending';
+        text = 'Menunggu Bayar';
+        break;
+      case BookingStatus.waitingConfirmation:
+        bgColor = Colors.purple.withOpacity(0.2);
+        textColor = Colors.purple.shade800;
+        text = 'Perlu Konfirmasi';
         break;
       case BookingStatus.confirmed:
         bgColor = AppColors.success.withOpacity(0.2);
         textColor = Colors.green.shade800;
-        text = 'Confirmed';
+        text = 'Dikonfirmasi';
         break;
       case BookingStatus.completed:
         bgColor = AppColors.info.withOpacity(0.2);
         textColor = Colors.blue.shade800;
-        text = 'Completed';
+        text = 'Selesai';
         break;
       case BookingStatus.cancelled:
         bgColor = AppColors.error.withOpacity(0.2);
         textColor = Colors.red.shade800;
-        text = 'Cancelled';
+        text = 'Dibatalkan';
         break;
     }
 

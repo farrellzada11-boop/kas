@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
                 'password' => password_hash('password', PASSWORD_DEFAULT),
                 'phone' => '08123456789',
                 'role' => 'admin',
-                'created_at' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'), 
                 'updated_at' => date('Y-m-d H:i:s'),
             ],
             [

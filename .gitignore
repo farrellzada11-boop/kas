@@ -65,3 +65,6 @@ coverage/
 
 # Pubspec lock (optional - uncomment if you want to track it)
 # pubspec.lock
+
+# Misconfigured session path
+backend/public/null/
